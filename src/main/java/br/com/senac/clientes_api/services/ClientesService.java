@@ -26,7 +26,29 @@ public class ClientesService {
                 this.clientesRequestDtoParaClientes(cliente);
 
         return clientesRepositorio.save(clientesPersist);
+    }
 
+    public Clientes atualizar(Long id, ClientesRequestDto clientesRequestDto){
+
+        if (clientesRepositorio.existsById(id)){
+            Clientes clientePersist=
+                    this.clientesRequestDtoParaClientes(clientesRequestDto);
+
+            clientePersist.setId(id);
+
+            return clientesRepositorio.save(clientePersist);
+        }
+        throw new RuntimeException("Cliente não encontrado !!");
+    }
+
+    public void deletar(Long id) {
+
+        if (clientesRepositorio.existsById(id)){
+
+            clientesRepositorio.deleteById(id);
+
+        }
+        throw new RuntimeException("Cliente não encontrado !");
     }
 
     private Clientes clientesRequestDtoParaClientes(
@@ -40,4 +62,5 @@ public class ClientesService {
 
         return saida;
     }
+
 }

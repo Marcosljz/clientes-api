@@ -3,6 +3,7 @@ package br.com.senac.clientes_api.controllers;
 import br.com.senac.clientes_api.dtos.ClientesRequestDto;
 import br.com.senac.clientes_api.entidades.Clientes;
 import br.com.senac.clientes_api.repositorios.ClientesRepositorio;
+import br.com.senac.clientes_api.services.ClientesService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,64 +14,67 @@ import java.util.List;
 @Controller
 @RequestMapping("/clientes")
 public class ClientesController {
-    private ClientesRepositorio clientesRepositorio;
 
-    public ClientesController(ClientesRepositorio clientesRepositorio) {
-        this.clientesRepositorio = clientesRepositorio;
+    private ClientesService clientesService;
+
+    public ClientesController(ClientesService clientesService) {
+        this.clientesService = clientesService;
     }
 
     @GetMapping("/listar")
     public ResponseEntity<List<Clientes>> listar() {
         return ResponseEntity
-                .ok(clientesRepositorio.findAll());
+                .ok(clientesService.listar());
     }
 
     @PostMapping("/criar")
     public ResponseEntity<Clientes> criar(
             @RequestBody ClientesRequestDto cliente) {
-        Clientes clientePersist = new Clientes();
-        clientePersist.setNome(cliente.getNome());
-        clientePersist.setEmail(cliente.getEmail());
-        clientePersist.setDocumento(cliente.getDocumento());
-        clientePersist.setIdade(cliente.getIdade());
-
-        Clientes retorno = clientesRepositorio
-                .save(clientePersist);
-
-        return ResponseEntity.ok(retorno);
+        try{
+            return ResponseEntity.ok(clientesService.criar(cliente));
+        } catch (Exception e){
+            return ResponseEntity.
+                    badRequest().
+                    body(null);
+        }
     }
 
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<Clientes> atualizar(
             @RequestBody ClientesRequestDto cliente,
             @PathVariable Long id) {
-        if(clientesRepositorio.existsById(id)) {
-            Clientes clientePersist = new Clientes();
-            clientePersist.setNome(cliente.getNome());
-            clientePersist.setEmail(cliente.getEmail());
-            clientePersist.setDocumento(cliente.getDocumento());
-            clientePersist.setIdade(cliente.getIdade());
-            clientePersist.setId(id);
+       try {
+           return ResponseEntity.ok(clientesService.atualizar(id, cliente));
+       }catch (RuntimeException e){
 
-            Clientes retorno = clientesRepositorio
-                    .save(clientePersist);
+           return ResponseEntity.
+                   badRequest().
+                   body(null);
+       }catch (Exception e){
 
-            return ResponseEntity.ok(retorno);
-
-        }
-
-        return ResponseEntity.badRequest().body(null);
+           return ResponseEntity.
+                   internalServerError().
+                   body(null);
+       }
 
     }
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id) {
-        if(clientesRepositorio.existsById(id)) {
-            clientesRepositorio.deleteById(id);
-            return ResponseEntity.ok(null);
-        }
+       try {
+           clientesService.deletar(id);
+           return ResponseEntity.ok(null);
+       }catch (RuntimeException e){
 
-        return ResponseEntity.badRequest().body(null);
+           return ResponseEntity.
+                   badRequest().
+                   body(null);
+
+       }catch (Exception e){
+           return ResponseEntity.
+                   internalServerError().
+                   body(null);
+       }
     }
 }
