@@ -1,5 +1,6 @@
 package br.com.senac.clientes_api.controllers;
 
+import br.com.senac.clientes_api.dtos.ClienteFiltroDto;
 import br.com.senac.clientes_api.dtos.ClientesRequestDto;
 import br.com.senac.clientes_api.entidades.Clientes;
 import br.com.senac.clientes_api.repositorios.ClientesRepositorio;
@@ -14,7 +15,6 @@ import java.util.List;
 @Controller
 @RequestMapping("/clientes")
 public class ClientesController {
-
     private ClientesService clientesService;
 
     public ClientesController(ClientesService clientesService) {
@@ -22,20 +22,22 @@ public class ClientesController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Clientes>> listar() {
+    public ResponseEntity<List<Clientes>> listar(ClienteFiltroDto filtro) {
         return ResponseEntity
-                .ok(clientesService.listar());
+                .ok(clientesService.listar(filtro));
     }
+
 
     @PostMapping("/criar")
     public ResponseEntity<Clientes> criar(
             @RequestBody ClientesRequestDto cliente) {
-        try{
-            return ResponseEntity.ok(clientesService.criar(cliente));
-        } catch (Exception e){
-            return ResponseEntity.
-                    badRequest().
-                    body(null);
+        try {
+            return ResponseEntity
+                    .ok(clientesService.criar(cliente));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
         }
     }
 
@@ -43,38 +45,50 @@ public class ClientesController {
     public ResponseEntity<Clientes> atualizar(
             @RequestBody ClientesRequestDto cliente,
             @PathVariable Long id) {
-       try {
-           return ResponseEntity.ok(clientesService.atualizar(id, cliente));
-       }catch (RuntimeException e){
-
-           return ResponseEntity.
-                   badRequest().
-                   body(null);
-       }catch (Exception e){
-
-           return ResponseEntity.
-                   internalServerError().
-                   body(null);
-       }
+        try {
+            return ResponseEntity
+                    .ok(clientesService.atualizar(id, cliente));
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
+        }
 
     }
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable Long id) {
-       try {
-           clientesService.deletar(id);
-           return ResponseEntity.ok(null);
-       }catch (RuntimeException e){
+        try {
+            clientesService.deletar(id);
+            return ResponseEntity.ok(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
+        }
+    }
 
-           return ResponseEntity.
-                   badRequest().
-                   body(null);
+    @GetMapping("/listar/{id}")
+    public ResponseEntity<Clientes> ListarById (
+            @PathVariable Long id
+    ) {
+        try {
+            return ResponseEntity.ok(clientesService.ListarById(id));
 
-       }catch (Exception e){
-           return ResponseEntity.
-                   internalServerError().
-                   body(null);
-       }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 }
