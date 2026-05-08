@@ -1,6 +1,6 @@
 package br.com.senac.clientes_api.controllers;
 
-import br.com.senac.clientes_api.dtos.ClienteFiltroDto;
+import br.com.senac.clientes_api.dtos.ClientesFiltroDto;
 import br.com.senac.clientes_api.dtos.ClientesRequestDto;
 import br.com.senac.clientes_api.entidades.Clientes;
 import br.com.senac.clientes_api.repositorios.ClientesRepositorio;
@@ -22,11 +22,26 @@ public class ClientesController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Clientes>> listar(ClienteFiltroDto filtro) {
+    public ResponseEntity<List<Clientes>> listar(ClientesFiltroDto filtro) {
         return ResponseEntity
                 .ok(clientesService.listar(filtro));
     }
 
+
+    @GetMapping("/listar/{id}")
+    public ResponseEntity<Clientes> listarPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(clientesService.listarPorId(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(null);
+        }
+    }
 
     @PostMapping("/criar")
     public ResponseEntity<Clientes> criar(
@@ -74,21 +89,6 @@ public class ClientesController {
             return ResponseEntity
                     .internalServerError()
                     .body(null);
-        }
-    }
-
-    @GetMapping("/listar/{id}")
-    public ResponseEntity<Clientes> ListarById (
-            @PathVariable Long id
-    ) {
-        try {
-            return ResponseEntity.ok(clientesService.ListarById(id));
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        catch (Exception e){
-            return ResponseEntity.internalServerError().body(null);
         }
     }
 }
